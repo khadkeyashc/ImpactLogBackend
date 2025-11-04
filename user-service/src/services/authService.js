@@ -9,6 +9,8 @@ const FollowService = require('./followsService.js');
 const generateOtp = require("../utils/generateOtp.js")
 const sendSms= require("../utils/sendSms.js")
 const sendEmail = require("../utils/sendEmail.js")
+const crypto = require('crypto');
+const { Op } = require('sequelize');
 
 async function signup(dto,file) {
     console.log("SIGNUP LAYER")
@@ -183,11 +185,80 @@ async function verifyToken(token) {
     return "OTP verified successfully";
   }
 
+  async function googleOAuthLogin(profile) {
+    const { id: googleId, emails, displayName, photos } = profile;
+    const email = emails[0].value;
+    const avatarUrl = photos[0].value || "https://res.cloudinary.com/dorfg8nqt/image/upload/v1756380305/ImpactLogProfile/Profile/default_profile_qptrer.jpg";
+
+    // Check if user exists by email or Google ID
+    let user = await User.findOne({ where: { email } });
+    if (!user) {
+      // Create new user if not found
+      user = await User.create({
+        email,
+        name: displayName,
+        username: email.split('@')[0], // Generate username from email
+        role: 'user', // Default role
+        avatarUrl,
+        googleId, // Add Google ID to User model if not present (ensure your model has this field)
+        passwordHash: null // No password for OAuth users
+      });
+
+      // Publish user created event
+      await EventPublisher.publish("user.created", {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        name: user.name,
+        role: user.role,
+        avatarUrl: user.avatarUrl,
+        createdAt: user.createdAt,
+      });
+    } else if (!user.googleId) {
+      // Link Google ID if user exists but not linked
+      user.googleId = googleId;
+      await user.save();
+    }
+
+    // Generate JWT (similar to login)
+    const SECRET = process.env.JWT_SECRET;
+    const token = jwt.sign(
+      { id: user.id, email: user.email, username: user.username, role: user.role },
+      SECRET,
+      { expiresIn: '100h' }
+    );
+
+    // Fetch followers/following
+    const followers = await FollowService.getFollowers(user.id);
+    const following = await FollowService.getFollowing(user.id);
+
+    const userData = {
+      ...user.toJSON(),
+      followers,
+      following
+    };
+
+    return { token, user: userData };
+  }
+
+  async function resetPassword(resetToken, newPassword) {
+    const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
+    const user = await User.findOne({ where: { resetPasswordToken: hashedToken, resetPasswordExpires: { [Op.gt]: Date.now() } } });
+    if (!user) throw new AppError("Invalid or expired token", 400);
+    user.passwordHash = await bcrypt.hash(newPassword, 10);
+    user.resetPasswordToken = null;
+    user.resetPasswordExpires = null;
+    await user.save();
+    return "Password reset successful";
+  }
+
 module.exports = {
   signup,
   login,
   verifyToken,
   forgetPassword,
   sendOtp,
-  verifyOtp
+  verifyOtp,
+  googleOAuthLogin,
+  resetPassword
 };

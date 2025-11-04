@@ -7,45 +7,53 @@ const { response, enable } = require("../../../engagement-service/src/app");
 
 class EventService {
 
-
-
-  static async giveRewardsToUsersInDb(event_id, selectedUsers, points, badgeId, badgeName) {
+static async giveRewardsToUsersInDb(event_id, selectedUsers, points, badge_id,badge_name ) {
   try {
     // 1️⃣ Verify event exists
     const event = await Event.findByPk(event_id);
     if (!event) throw new AppError("Event not found", 404);
 
     // 2️⃣ Validate inputs
-    if (!selectedUsers || !Array.isArray(selectedUsers) || selectedUsers.length === 0) {
+    if (!Array.isArray(selectedUsers) || selectedUsers.length === 0) {
       throw new AppError("At least one user must be selected", 400);
     }
 
-    // 3️⃣ Prepare payload for engagement or reward microservice (if applicable)
+    // 3️⃣ Prepare payload for reward microservice
     const payload = {
       eventId: event_id,
       selectedUsers,
       points: points ?? event.points,
-      badgeId: badgeId ?? event.badge_id,
-      badgeName: badgeName ?? event.badge_name,
+      badgeId: badge_id ?? event.badge_id,
+      badgeName: badge_name ?? event.badge_name,
     };
 
-    // 4️⃣ Send request to reward microservice (adjust URL as per setup)
+    // 4️⃣ Send request to reward microservice
     const rewardResponse = await axios.post(
       `http://localhost:3002/reward-badges/giveRewards/${event_id}`,
       payload
     );
 
-    // 5️⃣ Return combined result
+    // 5️⃣ If successful, update event status
+    // if (rewardResponse?.status === 200 || rewardResponse?.data) {
+    //   await Event.update(
+    //     { status: "rewarded" },
+    //     { where: { id: event_id } }
+    //   );
+    // }
+
+    // 6️⃣ Return combined result
     return {
       eventId: event_id,
       totalUsersRewarded: selectedUsers.length,
       rewardServiceResponse: rewardResponse.data,
     };
+
   } catch (error) {
     console.error("Error in giveRewardsToUsersInDb:", error.message);
     throw new AppError(error.message || "Failed to distribute rewards", 500);
   }
 }
+
 
 static async getCompletedEventsFromDbByUserID(userId)
 {
@@ -135,7 +143,18 @@ static async publishEventInDb(event_id) {
         points: dto.points ?? 0,
       };
 
+      // create qr code for verification 
+
+     
+
       const event = await Event.create(eventData);
+
+      const qrcreation = await axios.post(
+        "http://localhost:3008/verify/qr-generate",
+        {eventId:event.id},
+        { withCredentials: true }
+      );
+
       return event;
     } catch (err) {
       throw new AppError(err.message || "Failed to create event", 400);

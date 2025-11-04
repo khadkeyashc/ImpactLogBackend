@@ -63,8 +63,6 @@ async function login(req, res, next) {
 
 
 
-// ...existing code...
-
 async function logout(req, res, next) {
   try {
     // Try to get token from cookie, Authorization header, or body
@@ -154,8 +152,27 @@ async function logout(req, res, next) {
     }
   }
 
+  // Google OAuth Callback Controller
+  async function googleOAuthCallback(req, res, next) {
+    try {
+      // req.user is set by Passport with { token, user } from googleOAuthLogin
+      const { token, user } = req.user;
+      const userResponse = new UserResponseDTO(user);
 
-  
+      // Set token in HTTP-only cookie (same as login)
+      res.cookie('token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 60 * 60 * 120 * 1000
+      });
+
+      return res.json({ message: 'Google login successful', user: userResponse });
+    } catch (err) {
+      console.error('authController.googleOAuthCallback', err);
+      return next(new AppError('OAuth callback failed', 500));
+    }
+  }
 
 module.exports = {
   signup,
@@ -165,5 +182,6 @@ module.exports = {
   verifyOtp,
   sendOtp,
   resetPassword,
-  forgetPassword
+  forgetPassword,
+  googleOAuthCallback
 };

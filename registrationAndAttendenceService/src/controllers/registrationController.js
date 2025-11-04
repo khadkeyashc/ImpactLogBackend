@@ -51,8 +51,8 @@ class RegistrationController {
 
   static async checkIn(req, res) {
     try {
-      const { registrationId, checkinMethod, proofUrl } = req.body;
-      const attendance = await RegistrationService.checkIn(registrationId, checkinMethod, proofUrl);
+      const { userId, checkinMethod, proofUrl } = req.body;
+      const attendance = await RegistrationService.checkIn(userId, checkinMethod, proofUrl);
       res.json(attendance);
     } catch (err) {
       res.status(400).json({ message: err.message });

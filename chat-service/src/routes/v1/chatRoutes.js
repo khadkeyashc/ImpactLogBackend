@@ -4,7 +4,7 @@ const chatController = require('../../controllers/chatController');
 const jwtAuth = require('../../middleware/jwtAuth');
 
 // ---------------- TEMP: remove auth middleware ----------------
-router.post('/conversations', chatController.createConversation);
+router.post('/conversations',jwtAuth, chatController.createConversation);
 router.get('/chats',jwtAuth, chatController.getChatList);
 router.get('/conversations/:conversationId/messages', chatController.getMessages);
 router.post('/messages',jwtAuth, chatController.sendMessage);

@@ -27,14 +27,12 @@ class EventController {
 static async giveRewardsToUsers(req, res, next) {
   try {
     const { event_id } = req.params;
-    const { selectedUsers, points, badgeId, badgeName } = req.body;
+    const { selectedUsers, points, badge_id,badge_name } = req.body;
 
+    console.log(req.body)
     const result = await EventService.giveRewardsToUsersInDb(
       event_id,
-      selectedUsers,
-      points,
-      badgeId,
-      badgeName
+      selectedUsers, points, badge_id,badge_name 
     );
 
     res.status(200).json({
@@ -117,10 +115,9 @@ static async getPublishedEvents(req, res, next) {
 
 
   static async createEvent(req, res, next) {
-
     try {
       const dto = EventDto.fromRequest(req.body).toPersistence();
-      const organizationId = req.user?.organization_id || req.body.organization_id || "ee600e52-7efc-476c-8a5a-dea797ff495d"
+      const organizationId = req.user?.organization_id || req.body.organization_id;
 
 
       if (!organizationId) throw new AppError("organization_id is required", 400);

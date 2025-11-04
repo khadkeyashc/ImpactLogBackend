@@ -4,7 +4,7 @@ let connected = false;
 
 async function connectMongo() {
   if (connected) return mongoose.connection;
-  const uri = process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/chat_service';
+  const uri = process.env.MONGO_URI || 'mongodb://localhost:27017/ImpactLog';
   const opts = {
     maxPoolSize: 10,
     serverSelectionTimeoutMS: 5000,

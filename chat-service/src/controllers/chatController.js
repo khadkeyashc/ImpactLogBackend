@@ -9,6 +9,7 @@ module.exports = {
       if (!userId) return next(new AppError('Unauthorized', 401));
       if (!participantId) return next(new AppError('participantId is required', 400));
       const convo = await chatService.createConversation(userId, participantId);
+      console.log(convo);
       res.status(201).json({ success: true, data: convo });
     } catch (err) {
       next(new AppError(err.message, 400));

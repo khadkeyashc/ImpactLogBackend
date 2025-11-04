@@ -132,14 +132,14 @@ class RegistrationService {
   }
 
   // Check-in user
-  static async checkIn(registrationId, checkinMethod, proofUrl = null) {
-    const reg = await Registration.findByPk(registrationId);
+  static async checkIn(userId, checkinMethod, proofUrl = null) {
+    const reg = await Registration.findByPk(userId);
     if (!reg) throw new Error('Registration not found');
     if (reg.status !== 'registered') throw new Error('Cannot check-in non-registered user');
 
     const attendance = await Attendance.create({
-      registrationId,
-      checkinMethod,
+      registrationId : reg.id,
+      checkinMethod, 
       proofUrl,
     });
 

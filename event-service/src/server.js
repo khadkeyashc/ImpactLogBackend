@@ -2,11 +2,10 @@ const dotenv = require('dotenv');
 dotenv.config();
 
 const express = require('express');
-const app = express();
-
 const infra = require('./config/initInfrastructure'); // already a singleton
+const app = require('./app'); // <-- use your full Express setup
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3005;
 
 async function startHttp() {
   try {

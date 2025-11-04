@@ -134,12 +134,37 @@ async function markPostAsSeen(userId, postId) {
 }
 
 async function getUserPostByIdFromDb(userId) {
-  return await Post.findAll({
+  // 1️⃣ Fetch posts by this user
+  const posts = await Post.findAll({
     where: { authorId: userId },
-    order: [["createdAt", "DESC"]]
+    order: [["createdAt", "DESC"]],
   });
-}
 
+  // 2️⃣ Prepare post IDs
+  const postIds = posts.map((p) => p.id);
+
+  // 3️⃣ Fetch engagement details from engagement-service
+  let engagementData = {};
+  try {
+    const resp = await axios.post("http://localhost:4200/counts", { postIds });
+    engagementData = resp.data || {};
+  } catch (err) {
+    console.error("⚠️ Engagement service unavailable:", err.message);
+    // stick with empty engagement objects below
+  }
+
+  // 4️⃣ Merge engagement data into posts
+  const enrichedPosts = posts.map((post) => ({
+    ...(post.dataValues || post),
+    engagement: engagementData[post.id] || {
+      likes: [],
+      comments: [],
+      shares: [],
+    },
+  }));
+
+  return enrichedPosts;
+}
 
 module.exports = {
   createPost,

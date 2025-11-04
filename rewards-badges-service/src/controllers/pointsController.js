@@ -4,28 +4,37 @@ class PointsController {
 
 static async giveRewards(req, res, next) {
   try {
-    const { eventId, selectedUsers, badge_id, badge_name, points } = req.body;
+    const { eventId, selectedUsers, points, badgeId, badge_name } = req.body;
 
-    if (!eventId || !selectedUsers?.length)
-      return res.status(400).json({ message: "Event ID and selected users are required" });
-
-    // Loop through all selected users and award points
-    for (const userId of selectedUsers) {
-      await PointsService.awardPoints(userId, points, "Event Reward", `Reward for event ${eventId}`);
-      if (badge_id && badge_name) {
-        await PointsService.evaluateBadges(userId); // optional if badges depend on thresholds
-      }
+    console.log(req.body)
+    if (!eventId || !Array.isArray(selectedUsers) || selectedUsers.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Event ID and at least one user are required",
+      });
     }
 
-    res.status(200).json({
+    // Call the service
+    const result = await PointsService.giveRewardsToUsers(
+      selectedUsers,
+      eventId,
+      points,
+      badgeId,
+      badge_name
+    );
+
+    return res.status(200).json({
       success: true,
-      message: "Rewards and badges given successfully",
+      message: "Rewards successfully given to selected users",
+      data: result,
     });
+
   } catch (error) {
-    console.error("Error giving rewards:", error);
+    console.error("Error in giveRewards controller:", error);
     next(error);
   }
 }
+
 
   
   static async getBadges (req,res)

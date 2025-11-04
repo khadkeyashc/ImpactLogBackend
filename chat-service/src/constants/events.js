@@ -5,3 +5,4 @@ module.exports.RoutingKeys = {
   EVENT_JOINED: "event.joined",
   NOTIFICATION_SENT: "notification.sent",
 };
+  

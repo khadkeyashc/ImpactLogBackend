@@ -78,11 +78,16 @@ const Event = sequelize.define(
     },
 
     status: {
-      type: DataTypes.ENUM("draft", "published", "cancelled","completed"),
-      allowNull: false,
-      defaultValue: "draft",  
-      validate: { isIn: { args: [["draft", "published", "cancelled","completed"]] } }
+  type: DataTypes.ENUM("draft", "published", "cancelled", "completed", "rewarded"),
+  allowNull: false,
+  defaultValue: "draft",
+  validate: {
+    isIn: {
+      args: [["draft", "published", "cancelled", "completed", "rewarded"]],
+      msg: "Invalid event status",
     },
+  },
+},
     points:{
       type: DataTypes.INTEGER,
       allowNull:false,

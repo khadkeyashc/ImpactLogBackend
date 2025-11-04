@@ -4,14 +4,15 @@ class PointsService {
   /**
    * Give rewards (points + optional badge) to selected users
    */
-  static async giveRewardsToUsers(selectedUsers, eventId, points, badge_id = null, badge_name = null) {
+  static async giveRewardsToUsers(selectedUsers, eventId, points, badge_id , badge_name ) {
     try {
+      console.log(selectedUsers, eventId, points, badge_id, badge_name)
       for (const userId of selectedUsers) {
         // 1. Award points
         await this.awardPoints(userId, points, eventId, `Reward for participating in event ${eventId}`);
 
         // 2. Award badge (if provided)
-        if (badge_id && badge_name) {
+        if (badge_id) {
           const existingBadge = await UserBadge.findOne({ where: { userId, badgeId: badge_id } });
           if (!existingBadge) {
             console.log("AWARDING")
