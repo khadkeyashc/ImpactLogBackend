@@ -1,4 +1,4 @@
-const sequelize = require('./db'); // your sequelize instance
+const sequelize = require('./db'); 
 const { User, Follow } = require('../models/associations');
 
 async function initDB(syncModels = false) {
@@ -6,7 +6,6 @@ async function initDB(syncModels = false) {
     await sequelize.authenticate();
     console.log("✅ Connected to Database");
 
-    // Ensure associations are loaded
     User;
     Follow;
 

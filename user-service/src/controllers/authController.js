@@ -1,6 +1,6 @@
 const authService = require('../services/authService');
 const UserSignupDTO = require('../dto/UserSignupDTO');
-const UserResponseDTO = require('../dto/UserResponseDTO');
+const UserResponseDTO = require('../dto/UserLoginDto');
 const AppError = require('../utils/error.utils');
 const UserLoginDTO = require('../dto/UserLoginDto');
 

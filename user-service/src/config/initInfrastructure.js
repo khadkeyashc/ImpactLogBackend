@@ -47,5 +47,4 @@ class Infrastructure {
   }
 }
 
-// Export singleton instance
 module.exports = new Infrastructure();

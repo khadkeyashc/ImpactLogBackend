@@ -14,7 +14,13 @@ const sequelize = new Sequelize(dbName, dbUser, dbPass, {
   host: dbHost,
   port: dbPort,
   dialect: dbDialect,
-  logging: false, // set true if you want SQL logs
+  dialectOptions:{
+    ssl: {
+      require: true,
+      rejectUnauthorized: false, 
+    },
+  },
+  logging: false, 
   pool: {
     max: 10,
     min: 0,
@@ -24,11 +30,3 @@ const sequelize = new Sequelize(dbName, dbUser, dbPass, {
 });
 
 module.exports = sequelize;
-
-
-// DB_HOST=localhost
-// DB_PORT=5432
-// DB_USER=abhi
-// DB_PASS=radhe
-// DB_NAME=ImpactLog
-// DB_DIALECT=postgres

@@ -33,7 +33,6 @@ app.use(helmet({
 app.set('trust proxy', 1);
 
 
-// Routes will be mounted in server.js
 const routes = require("./routes/v1/index");
 app.use("/",routes) 
 app.use("/ping",(req,res)=>{
