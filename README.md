@@ -25,14 +25,5 @@ This project demonstrates scalable backend architecture, secure JWT authenticati
 
 ---
 
-## ✨ Key Features
-
-- Secure User Authentication (JWT-based)
-- RESTful API Architecture
-- CRUD Operations for Impact Activities
-- Modular Controller & Route Structure
-- Environment-based Configuration
-- Error Handling Middleware
-- Scalable Backend Design
 
 
